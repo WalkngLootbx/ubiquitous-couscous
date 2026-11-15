@@ -24,13 +24,27 @@ public class ConversationLoader : MonoBehaviour
         saved.AddRange(ReadArchive());
         saved.AddRange(ReadLog());
 
-        saved = saved.Where(s => s.role != Role.System && s.role != Role.Developer).ToList();
+        saved = saved.Where(IsSavable).ToList();
 
         WriteArchive(saved);
         if (File.Exists(LogPath)) File.Delete(LogPath);
 
         return SavedMessage.ToMessages(saved);
     }
+
+    // Replaces the whole saved history (used after old messages were condensed into a summary).
+    // Pass everything except the main system prompt; a summary message is kept, other system messages are dropped.
+    public static void Save(IEnumerable<Message> conversation)
+    {
+        var saved = conversation.Select(m => new SavedMessage(m)).Where(IsSavable).ToList();
+
+        WriteArchive(saved);
+        if (File.Exists(LogPath)) File.Delete(LogPath);
+    }
+
+    // System and Developer messages are never saved, except the summary of older conversation.
+    private static bool IsSavable(SavedMessage s) =>
+        (s.role != Role.System && s.role != Role.Developer) || ConversationCompactor.IsSummary(s.role, s.content);
 
     // Call every time a message is added (user message and AI reply).
     public static void Append(Message message)

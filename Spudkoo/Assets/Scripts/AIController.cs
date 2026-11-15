@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 public class AIController : MonoBehaviour
 {
     OpenAIClient openAI;
@@ -16,6 +17,13 @@ public class AIController : MonoBehaviour
     public TMP_Text outputText;
     [SerializeField] private TestController testController;
     public TMP_Text RandomFact;
+
+    [Header("History compaction")]
+    [Tooltip("When the saved conversation is longer than this many characters, older messages are condensed into a summary.")]
+    [SerializeField] private int compactAboveChars = 8000;
+    [Tooltip("How many of the newest messages are always kept word for word.")]
+    [SerializeField] private int keepRecentMessages = 8;
+    private bool _compacting;
 
     public event Action OnAIConversed;
     void Start()
@@ -58,6 +66,35 @@ public class AIController : MonoBehaviour
         }
         );
         messages.AddRange(ConversationLoader.LoadAndCompact());
+        _ = CompactIfNeeded();
+    }
+
+    // messages[0] is the main system prompt and is never summarized.
+    async Task CompactIfNeeded()
+    {
+        if (openAI == null || _compacting) return;
+        if (ConversationCompactor.CountChars(messages.Skip(1)) <= compactAboveChars) return;
+
+        int olderCount = messages.Count - 1 - keepRecentMessages;
+        if (olderCount < 1) return;
+
+        _compacting = true;
+        try
+        {
+            var older = messages.GetRange(1, olderCount);
+            Message summary = await ConversationCompactor.SummarizeAsync(openAI, older);
+            if (summary == null) return;
+
+            // Messages added while we waited sit after the summarized part, so they stay.
+            messages.RemoveRange(1, olderCount);
+            messages.Insert(1, summary);
+            ConversationLoader.Save(messages.Skip(1));
+            Debug.Log($"[AIController] Condensed {olderCount} messages into a summary.");
+        }
+        finally
+        {
+            _compacting = false;
+        }
     }
     async void SubmitChat(string input)
     {
@@ -73,6 +110,7 @@ public class AIController : MonoBehaviour
         ConversationLoader.Append(aiResponse);
         outputText.text = response.FirstChoice;
         OnAIConversed?.Invoke();
+        _ = CompactIfNeeded();
     }
 
     async void SubmitTestResults(string input)
@@ -83,6 +121,7 @@ public class AIController : MonoBehaviour
         var chatAttempt = new ChatRequest(messages,Model.GPT4oMini,maxTokens: 50);
         var response = await openAI.ChatEndpoint.GetCompletionAsync(chatAttempt);
         messages.Add(new Message(Role.Assistant,response.FirstChoice));
+        _ = CompactIfNeeded();
     }
 
     private void HandleTestOver(string testResults)

@@ -77,6 +77,8 @@ public class AIController : MonoBehaviour
 
         int olderCount = messages.Count - 1 - keepRecentMessages;
         if (olderCount < 1) return;
+        // A lone summary is already as short as it gets; wait until there are real messages to fold in.
+        if (olderCount == 1 && ConversationCompactor.IsSummary(messages[1])) return;
 
         _compacting = true;
         try

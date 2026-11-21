@@ -28,6 +28,7 @@ public class MoneyManager : MonoBehaviour
     private void Start()
     {
         aiController.OnAIConversed += HandleAIConversed;
+        Budds = StatsManager.Instance.BuddsBalance; // restore the saved balance
         UpdateText();
     }
 
@@ -36,6 +37,8 @@ public class MoneyManager : MonoBehaviour
     {
         Budds += amount;
         Debug.Log($"Added {amount} budds, total={Budds}");
+        StatsManager.Instance.RecordBuddsEarned(amount);
+        StatsManager.Instance.SetBuddsBalance(Budds);
         UpdateText();
         return true;
 
@@ -46,6 +49,7 @@ public class MoneyManager : MonoBehaviour
     {
         if(Budds-amount<0) return false;
         else Budds -= amount;
+        StatsManager.Instance.SetBuddsBalance(Budds);
         UpdateText();
         return true;
     }

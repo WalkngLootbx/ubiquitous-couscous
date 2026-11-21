@@ -1,0 +1,11 @@
+These are the instructions for the new Statistics page for Spudkoo.
+The following are the details about the page, including all of its features.
+
+
+Features of the Statistics page.
+3 Main sections.
+
+1. Tracks how many Budds the user has gained throughout their app lifetime. Budds are a currency the user earns by communicating with their AI buddy.
+2. Tracks the user's total screentime throughout the app. Should simply be in hh:mm:ss 
+3. Tracks the total amount of messages sent from the user to their AI buddy. This only includes the main conversation, not the "fun fact" feature. 
+

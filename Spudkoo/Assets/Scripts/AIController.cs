@@ -105,6 +105,7 @@ public class AIController : MonoBehaviour
         Message userMessage = new Message(Role.User, inputField.text);
         messages.Add(userMessage);
         ConversationLoader.Append(userMessage);
+        StatsManager.Instance.RecordMessageSent();
         var chatAttempt = new ChatRequest(messages,Model.GPT4oMini,maxTokens: 50);
         var response = await openAI.ChatEndpoint.GetCompletionAsync(chatAttempt);
         Message aiResponse = new Message(Role.Assistant, response.FirstChoice);

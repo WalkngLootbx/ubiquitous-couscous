@@ -10,10 +10,6 @@ SFX
 - Emote music overrides background music temporarily 
 
 
-ConversationLoader
-- Done, just need to compress/summarize conversation (every time? when it reaches a certain size?)
-
-
 Statistics page
 - Store daily screentime
 - Store total budds collected

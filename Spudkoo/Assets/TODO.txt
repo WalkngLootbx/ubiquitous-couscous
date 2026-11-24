@@ -15,4 +15,7 @@ Statistics page
 - Store total budds collected
 - Store total messages sent
 
-
+Fixes
+-Add cooldown to 'talk to buddy' and 'teach me something' UI functions to prevent token voiding and budd farming
+-Make sure timer for playtime in statistics page doesn't count down even while the page isn't opened
+-Create dev console for testing

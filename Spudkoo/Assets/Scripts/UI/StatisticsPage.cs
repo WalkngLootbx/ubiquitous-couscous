@@ -10,11 +10,14 @@ public class StatisticsPage : MonoBehaviour
     [SerializeField] private TMP_Text buddsEarnedText;
     [SerializeField] private TMP_Text screentimeText;
     [SerializeField] private TMP_Text messagesSentText;
+    [SerializeField] private TMP_Text buddsSpentText;
 
     [Header("Formats ({0} = value)")]
     [SerializeField] private string buddsFormat = "{0}";
     [SerializeField] private string screentimeFormat = "{0}";
     [SerializeField] private string messagesFormat = "{0}";
+    [SerializeField] private string spendFormat = "{0}";
+
 
     private long _lastShownSecond = -1;
 
@@ -38,6 +41,7 @@ public class StatisticsPage : MonoBehaviour
         var stats = StatsManager.Instance;
         if (buddsEarnedText) buddsEarnedText.text = string.Format(buddsFormat, stats.TotalBuddsEarned);
         if (messagesSentText) messagesSentText.text = string.Format(messagesFormat, stats.TotalMessagesSent);
+        if (buddsSpentText) buddsSpentText.text = string.Format(spendFormat, stats.BuddsSpent);
     }
 
     private void RefreshScreentime(bool force)

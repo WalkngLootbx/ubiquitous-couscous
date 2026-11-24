@@ -28,6 +28,7 @@ public class StatsManager : MonoBehaviour
         public double TotalScreenSeconds;
         public long TotalMessagesSent;
         public int BuddsBalance;
+        public int BuddsSpent;
     }
 
     private StatsData _data = new StatsData();
@@ -37,6 +38,7 @@ public class StatsManager : MonoBehaviour
     public double TotalScreenSeconds => _data.TotalScreenSeconds;
     public long TotalMessagesSent => _data.TotalMessagesSent;
     public int BuddsBalance => _data.BuddsBalance;
+    public int BuddsSpent => _data.BuddsSpent;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void CreateInstance()
@@ -61,6 +63,10 @@ public class StatsManager : MonoBehaviour
 
         _autoSaveTimer += Time.unscaledDeltaTime;
         if (_autoSaveTimer >= AutoSaveInterval) Save();
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ResetStats();
+        }
     }
 
     // --- Recording ---
@@ -81,6 +87,22 @@ public class StatsManager : MonoBehaviour
     public void SetBuddsBalance(int balance)
     {
         _data.BuddsBalance = balance;
+        Changed();
+    }
+
+    public void SetBuddsSpent(int spend)
+    {
+        _data.BuddsSpent += spend;
+        Changed();
+    }
+
+    public void ResetStats()
+    {
+        _data.TotalBuddsEarned = 0;
+        _data.TotalScreenSeconds = 0;
+        _data.TotalMessagesSent = 0;
+        _data.BuddsBalance = 0;
+        _data.BuddsSpent = 0;
         Changed();
     }
 
@@ -133,6 +155,6 @@ public class StatsManager : MonoBehaviour
     public static string FormatDuration(double seconds)
     {
         long total = (long)seconds;
-        return $"{total / 3600:00}:{total % 3600 / 60:00}:{total % 60:00}";
+        return $"hours {total / 3600:00}  minutes {total % 3600 / 60:00}  seconds {total % 60:00}";
     }
 }
